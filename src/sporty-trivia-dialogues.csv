@@ -1,0 +1,12 @@
+key,en,it
+welcome_new_user,"Hi there, welcome to Sporty Trivia, the ultimate quiz for football fans. What’s your first name?","Ciao, questo è Sporty Trivia, il quiz per appassionati di calcio. Come ti chiami?"
+welcome_recurring_user,"Hi {firstName}, welcome back to Sporty Trivia, the ultimate quiz for football fans.","Ciao {firstName}, bentornato a Sporty Trivia, il quiz per appassionati di calcio."
+first_name_confirmation,"{firstName}, correct?","{firstName}, giusto?"
+wrong_first_name,Sorry about that. What’s your first name?,Mi spiace per l'errore. Come ti chiami?
+lets_get_started,Let’s get started with a new game.,Iniziamo una nuova partita.
+question_number,Question number {n}.,Domanda numero {n}.
+correct_answer,Correct answer.,Risposta corretta.
+wrong_answer,Wrong answer. The correct answer was: {correctOption}.,Risposta sbagliata. La risposta corretta era: {correctOption}.
+three_mistakes_made,You made three mistakes.,Hai commesso tre errori.
+game_ended,"The game has ended, {firstName}. You scored {score} points. Would you like to play another game?","La partita è finita, {firstName}. Hai ottenuto {score} punti. Vuoi giocare un'altra partita?"
+goodbye,"Okay, come back soon. Goodbye.","Okay, a presto."

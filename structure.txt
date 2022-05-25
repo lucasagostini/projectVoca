@@ -1,0 +1,20 @@
+Project structure:
+
+Check DB for user persistent data to check if recurring user;
+Ask for user name only if new user, otherwise user DB saved name;
+Confirm the user name and save it on DB;
+
+Done - Import CSV files and make them into lists (italian separated from english);
+Check user region/language using session information;
+
+Done - before each question, randomize a question making sure they were not asked in this game;
+
+Done - In every question, save the correct answer then randomize the alternatives and offer them to the user;
+
+Done - If user got it right, add one point to total, otherwise add one point to errors;
+
+Done - Before every question, make sure errors is less than 3, could be done with while loop or with 5 sequential IFs;
+
+After game ends, tell user its points and ask if he wants to play a new game;
+
+
