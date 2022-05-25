@@ -1,87 +1,125 @@
-import { Component, BaseComponent, Intents } from '@jovotech/framework';
+import { Component, BaseComponent, Intents, Message } from '@jovotech/framework';
 
-import { YesNoOutput } from '../output/YesNoOutput';
+import { ABCDOutput } from '../output/ABCDOutput';
+import { NameOutput } from '../output/NameOutput';
 
 import csv from 'csv-parser';
 import fs from 'fs';
-let english: string[][] = []
-let italian: string[][] = []
-/*
-|--------------------------------------------------------------------------
-| Component
-|--------------------------------------------------------------------------
-|
-| A component consists of handlers that respond to specific user requests
-| Learn more here: www.jovo.tech/docs/components, jovo.tech/docs/handlers
-|
-*/
+import { YesNoOutput } from '../output/YesNoOutput';
+
+let language: string[][] = []
+let name: string;
+
 @Component()
 export class TriviaGameComponent extends BaseComponent {
   START() {
-    readFiles()
-    return this.$send(YesNoOutput, { message: 'Hi there, welcome to Sporty Trivia, the ultimate quiz for football fans. What is your first name?' });
+    readFiles(this.$request.getLocale()!)
+    if(this.$user.isNew){
+      return this.$send(NameOutput, { message: 'Hi there, welcome to Sporty Trivia, the ultimate quiz for football fans. What is your first name?',  listen: true });
+    }
+    else{
+      return this.$send({ message: 'Hi {firstName}, welcome back to Sporty Trivia, the ultimate quiz for football fans.', listen: false });
+    }
+    
+  }
+  @Intents(['NameIntent'])
+  name() {
+
+    name = this.$input.text!;
+    name = name.split(" ").pop()!;
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+    return this.$send(YesNoOutput, { message: name+', is that correct?', listen: true });
   }
 
-  @Intents(['YesIntent'])
-  lovesPizza() {
-    return this.$send({ message: 'Yes! I love pizza, too.', listen: false });
-  }
 
-  @Intents(['NoIntent'])
-  hatesPizza() {
-    return this.$send({ message: `That's OK! Not everyone likes pizza.`, listen: false });
-  }
   @Intents(['NewGameIntent'])
   newGame() {
     this.$send({ message: `Let\'s get started with a new game.`, listen: false });
+
     let errors = 0;
     let questions: number[] = [];
     let points = 0;
-    while(errors < 3){
-      let rand = Math.floor(Math.random() * english.length)
+    let questionsAsked = 0;
+    console.log("teste")
+
+    while(errors < 3 || questionsAsked == 5){
+      let rand = Math.floor(Math.random() * language.length)
       while(questions.includes(rand)){
-        rand = Math.floor(Math.random() * english.length)
+        rand = Math.floor(Math.random() * language.length)
       }
       questions.push(rand);
-      let selectedQuestion: string[] = english[rand];
+      
+      let selectedQuestion: string[] = language[rand];
       let correct = selectedQuestion[1];
       let question = selectedQuestion.shift();
+      
       selectedQuestion = selectedQuestion.sort(() => Math.random() - 0.5)
-      this.$send({ message: question, true: false })
+      questionsAsked+=1;
+
+      // check which randomized alternative was the correct one
+      let alternative = findCorrect(selectedQuestion, correct);
+      let questionNumber = "Question number "+ questionsAsked + " .";
+      this.$send(ABCDOutput, { message: questionNumber+question, listen: true})
       let response = this.$input
-      if(response.text == correct){
+      
+      
+
+      if(response.text == alternative){
         points+=1;
+        this.$send({ message: "Correct answer.",  listen: false })
       }
       else{
         errors+=1;
+        this.$send({ message: "Wrong answer. The correct answer was: " + alternative + ".",  listen: false })
       }
-
-
-
     }
+
+    let output: string = '';
+    if(errors == 3){
+      output+="You made three mistakes."
+    }
+    output+="The game has ended, "+ name + " . You scored "+ points +" points. Would you like to play another game?"
+
+    return this.$send(YesNoOutput, {message:output,  listen: true})
+
+
   }
   UNHANDLED() {
     return this.START();
   }
   
 }
-function readFiles(){
+
+function readFiles(locale:string){
   // read english file and save it in an array of arrays
-  fs.createReadStream('./src/sporty-trivia-en-games.csv')
-  .pipe(csv())
-  .on('data', (r) => {
-    english.push(r);        
-  })
-  .on('end', () => {
-    console.log("English Done!");
-  })
-  // read italian file and save it in an array of arrays
-  fs.createReadStream('./src/sporty-trivia-it-games.csv')
-  .pipe(csv())
-  .on('data', (r) => {
-    italian.push(r);        
-  })
-  .on('end', () => {
-    console.log("Italian Done!");
-  })
+  if(locale == "en"){
+    fs.createReadStream('./src/sporty-trivia-en-games.csv')
+    .pipe(csv())
+    .on('data', (r) => {
+      language.push(r);        
+    })
+  }
+  if(locale == "it"){
+    fs.createReadStream('./src/sporty-trivia-it-games.csv')
+    .pipe(csv())
+    .on('data', (r) => {
+      language.push(r);        
+    })
+  }
+}
+
+function findCorrect(alternatives:string[], correct:string){
+  if (alternatives[0] == correct){
+    return "A";
+  }
+  else if (alternatives[1] == correct){
+    return "B";
+  }
+  else if (alternatives[2] == correct){
+    return "C";
+  }
+  else{
+    return "D";
+  }
+
 }

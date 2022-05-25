@@ -21,6 +21,12 @@
         "new game",
         "play again"
       ]
+    },
+    "NameIntent": {
+      "phrases": [
+        "my name is",
+        "i am"
+      ]
     }
   }
 }
